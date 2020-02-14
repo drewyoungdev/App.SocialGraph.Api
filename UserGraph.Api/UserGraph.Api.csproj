@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UserGraph.Configuration\UserGraph.Configuration.csproj" />
+    <ProjectReference Include="..\UserGraph.DataLayer.Interfaces\UserGraph.DataLayer.Interfaces.csproj" />
+    <ProjectReference Include="..\UserGraph.DataLayer\UserGraph.DataLayer.csproj" />
+  </ItemGroup>
+
+</Project>
