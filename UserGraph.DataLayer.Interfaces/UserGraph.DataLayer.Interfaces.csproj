@@ -5,7 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gremlin.Net" Version="3.4.5" />
+    <PackageReference Include="ExRam.Gremlinq.Providers.CosmosDb" Version="7.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UserGraph.Models\UserGraph.Models.csproj" />
   </ItemGroup>
 
 </Project>

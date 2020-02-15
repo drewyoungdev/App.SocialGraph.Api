@@ -1,99 +1,34 @@
-﻿using ExRam.Gremlinq.Core;
-using ExRam.Gremlinq.Core.GraphElements;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using UserGraph.DataLayer.Interfaces;
+using UserGraph.Models;
 
 namespace UserGraph.Api.Controllers
 {
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private IGremlinQuerySource _gremlinQuerySource;
+        private IUsersRepository _usersRepository;
 
-        public UsersController(IGremlinQuerySource gremlinQuerySource)
+        public UsersController(IUsersRepository usersRepository)
         {
-            _gremlinQuerySource = gremlinQuerySource;
+            _usersRepository = usersRepository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            await _gremlinQuerySource.V().Drop();
+       [HttpGet]
+       public async Task<ActionResult<User[]>> Get()
+           => await _usersRepository.GetAllUsers();
 
-            var person1 = new Person()
-            {
-                Name = new VertexProperty<string, NameMeta>("Drew")
-                    {
-                        Properties = new NameMeta()
-                        {
-                            Creator = "User1",
-                            Date = DateTime.Now
-                        }
-                    },
-                Age = 125
-            };
+       [HttpGet("{id}")]
+       public async Task<ActionResult<User>> Get(string id)
+           => await _usersRepository.GetUser(id);
 
-            var person2 = new Person()
-            {
-                Name = new VertexProperty<string, NameMeta>("Erica")
-                {
-                    Properties = new NameMeta()
-                    {
-                        Creator = "User2",
-                        Date = DateTime.Now
-                    }
-                },
-                Age = 126
-            };
+       [HttpGet("{id}/following")]
+       public async Task<ActionResult<string[]>> GetFollowing(string id)
+           => await _usersRepository.GetFollowing(id);
 
-            var result = await _gremlinQuerySource
-                .AddV(person1)
-                .AddE<Knows>()
-                    .To(x => x.AddV(person2))
-                .FirstAsync();
-
-            return Ok(result);
-        }
-
-        [HttpGet("{id}/knows")]
-        public async Task<IActionResult> Knows(string id)
-        {
-            Person[] knows = await _gremlinQuerySource
-                .V(id)
-                .Out<Knows>()
-                .OfType<Person>()
-                .ToArrayAsync();
-
-            return Ok(knows);
-        }
-    }
-
-    public class Person : Vertex
-    {
-        public int Age { get; set; }
-        public VertexProperty<string, NameMeta> Name { get; set; }
-    }
-
-    public class NameMeta
-    {
-        public string Creator { get; set; }
-        public DateTime Date { get; set; }
-    }
-
-    public class Vertex : IVertex
-    {
-        public object Id { get; set; }
-        public string Label { get; set; }
-        public string PartitionKey { get; set; } = "PartitionKey";
-    }
-
-    public class Knows : Edge
-    { }
-
-    public class Edge : IEdge
-    {
-        public object Id { get; set; }
-        public string Label { get; set; }
+       [HttpGet("{id}/followers")]
+       public async Task<ActionResult<string[]>> GetFollowers(string id)
+           => await _usersRepository.GetFollowers(id);
     }
 }

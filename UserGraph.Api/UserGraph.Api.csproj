@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExRam.Gremlinq.Providers.CosmosDb" Version="8.0.0-preview-0127" />
-    <PackageReference Include="ExRam.Gremlinq.Providers.GremlinServer" Version="8.0.0-preview-0127" />
+    <!-- In regards to Bcl AsyncInterfaces below https://github.com/dotnet/orleans/issues/6028 -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
