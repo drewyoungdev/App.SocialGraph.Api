@@ -23,6 +23,14 @@ namespace UserGraph.Api.Controllers
         public async Task<ActionResult<Tweet>> GetByTweetId(string tweetId)
             => await _usersRepository.GetTweetById(tweetId);
 
+        [HttpGet("{tweetId}/likes/count")]
+        public async Task<ActionResult<int>> GetLikesCount(string tweetId)
+            => await _usersRepository.GetLikesCount(tweetId);
+
+        [HttpGet("{tweetId}/likes")]
+        public async Task<ActionResult<User[]>> GetLikes(string tweetId)
+            => await _usersRepository.GetLikes(tweetId);
+
         [HttpGet("/api/users/{userId}/tweets")]
         public async Task<ActionResult<Tweet[]>> GetByUserId(string userId)
             => await _usersRepository.GetTweetsByUserId(userId);
@@ -31,6 +39,22 @@ namespace UserGraph.Api.Controllers
         public async Task<IActionResult> Tweet(string userId, [FromBody] Tweet tweet)
         {
             await _usersRepository.Tweet(userId, tweet);
+
+            return Accepted();
+        }
+
+        [HttpPost("/api/users/{sourceUserId}/like/{destinationTweetId}")]
+        public async Task<IActionResult> Like(string sourceUserId, string destinationTweetId)
+        {
+            await _usersRepository.Like(sourceUserId, destinationTweetId);
+
+            return Accepted();
+        }
+
+        [HttpPost("/api/users/{sourceUserId}/unlike/{destinationTweetId}")]
+        public async Task<IActionResult> Unlike(string sourceUserId, string destinationTweetId)
+        {
+            await _usersRepository.Unlike(sourceUserId, destinationTweetId);
 
             return Accepted();
         }

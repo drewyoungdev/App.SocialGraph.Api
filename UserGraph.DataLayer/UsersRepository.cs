@@ -123,24 +123,45 @@ namespace UserGraph.DataLayer
                 .FirstAsync();
         }
 
-        public Task<User[]> GetLikes(string tweetId)
+        public async Task<User[]> GetLikes(string tweetId)
         {
-            throw new NotImplementedException();
+            return await _g
+                .V<Tweet>(tweetId)
+                .In<Likes>()
+                .OfType<User>()
+                // .Values(_ => _.Name)
+                .ToArrayAsync();
         }
 
-        public Task<int> GetLikesCount(string tweetId)
+        public async Task<int> GetLikesCount(string tweetId)
         {
-            throw new NotImplementedException();
+            return await _g
+                .V<Tweet>(tweetId)
+                .In<Likes>()
+                .CountAsync();
         }
 
-        public Task Like(string sourceUserId, string destinationTweetId)
+        public async Task Like(string sourceUserId, string destinationTweetId)
         {
-            throw new NotImplementedException();
+            await _g
+                .V<User>(sourceUserId)
+                .AddE<Likes>()
+                .To(_ => _
+                    .V<Tweet>(destinationTweetId))
+                .FirstAsync();
         }
 
-        public Task Unlike(string sourceUserId, string destinationTweetId)
+        public async Task Unlike(string sourceUserId, string destinationTweetId)
         {
-            throw new NotImplementedException();
+            await _g
+                .V<User>(sourceUserId)
+                .OutE<Likes>()
+                .As((_, e1) => _
+                    .InV<Tweet>()
+                    .Where(tweet => (string)tweet.Id == destinationTweetId)
+                    .Select(e1))
+                .Drop()
+                .ToArrayAsync();
         }
     }
 }

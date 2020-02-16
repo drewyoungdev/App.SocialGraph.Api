@@ -14,6 +14,8 @@ namespace UserGraph.DataLayer.Interfaces
         Task Follow(string sourceUserId, string destinationUserId);
         Task Unfollow(string sourceId, string destinationId);
 
+        // ===== TweetsRepository =====
+
         Task<Tweet[]> GetAllTweets();
         Task<Tweet> GetTweetById(string tweetId);
         Task<Tweet[]> GetTweetsByUserId(string userId);

@@ -32,7 +32,7 @@ namespace UserGraph.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Init()
         {
-            // Drop Graph
+            // Drop Graph (May need to do try-catch to drop Edges first then Vertices or else 429)
             await _g
                 .V()
                 .Drop()
@@ -85,7 +85,7 @@ namespace UserGraph.Api.Controllers
                 }
             }
 
-            // TODO: Create Random Tweets
+            // Create Random Tweets
             var userIdsAndPosts = new Dictionary<string, List<Tweet>>();
 
             foreach (var user in users)
@@ -113,12 +113,34 @@ namespace UserGraph.Api.Controllers
                     tweets.Add(tweet);
                 }
 
-                userIdsAndPosts.Add((string) user.Id, tweets);
+                userIdsAndPosts.Add((string)user.Id, tweets);
             }
 
-            // TODO: Create Random Likes
-            // foreach user loops through all users that's not the current one
-            // Lookup user id in dictionary and pick random number of posts based on count to "like"
+            // Create Random Likes
+            foreach (var user in users)
+            {
+                // foreach user loops through all users that's not the current one
+                foreach (var userId in userIdsAndPosts.Keys)
+                {
+                    if (userId != (string)user.Id)
+                    {
+                        List<Tweet> tweets = userIdsAndPosts[userId];
+
+                        // Lookup user id in dictionary and pick random number of posts based on count to "like"
+                        int numberOfLikes = random.Next(0, tweets.Count + 1);
+
+                        for (int i = 0; i < numberOfLikes; i++)
+                        {
+                            await _g
+                                .V<User>(user.Id)
+                                .AddE<Likes>()
+                                .To(_ => _
+                                    .V<Tweet>(tweets[i].Id))
+                                .FirstAsync();
+                        }
+                    }
+                }
+            }
 
             return Ok();
         }
