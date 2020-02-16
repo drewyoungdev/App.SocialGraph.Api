@@ -51,14 +51,15 @@ namespace UserGraph.Api
                     //    //.UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovy)
                     //    //.UseLogger(logger)
                     .UseCosmosDb(
-                        gremlinUri, 
-                        gremlinDatabaseName, 
-                        gremlinCollectionName, 
+                        gremlinUri,
+                        gremlinDatabaseName,
+                        gremlinCollectionName,
                         gremlinAuthKey
                      );
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<ITweetsRepository, TweetsRepository>();
 
             services.AddControllers();
         }
