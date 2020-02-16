@@ -19,34 +19,34 @@ namespace UserGraph.Api.Controllers
         public async Task<ActionResult<User[]>> Get()
             => await _usersRepository.GetAllUsers();
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> Get(string id)
-            => await _usersRepository.GetUser(id);
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<User>> Get(string userId)
+            => await _usersRepository.GetUserById(userId);
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] User user)
             => Created("", await _usersRepository.CreateUser(user));
 
-        [HttpGet("{id}/following")]
-        public async Task<ActionResult<User[]>> GetFollowing(string id)
-            => await _usersRepository.GetFollowing(id);
+        [HttpGet("{userId}/following")]
+        public async Task<ActionResult<User[]>> GetFollowing(string userId)
+            => await _usersRepository.GetFollowing(userId);
 
-        [HttpGet("{id}/followers")]
-        public async Task<ActionResult<User[]>> GetFollowers(string id)
-            => await _usersRepository.GetFollowers(id);
+        [HttpGet("{userId}/followers")]
+        public async Task<ActionResult<User[]>> GetFollowers(string userId)
+            => await _usersRepository.GetFollowers(userId);
 
-        [HttpPost("{sourceId}/follow/{destinationId}")]
-        public async Task<IActionResult> Follow(string sourceId, string destinationId)
+        [HttpPost("{sourceUserId}/follow/{destinationUserId}")]
+        public async Task<IActionResult> Follow(string sourceUserId, string destinationUserId)
         {
-            await _usersRepository.Follow(sourceId, destinationId);
+            await _usersRepository.Follow(sourceUserId, destinationUserId);
 
             return Accepted();
         }
 
-        [HttpPost("{sourceId}/unfollow/{destinationId}")]
-        public async Task<IActionResult> Unfollow(string sourceId, string destinationId)
+        [HttpPost("{sourceUserId}/unfollow/{destinationId}")]
+        public async Task<IActionResult> Unfollow(string sourceUserId, string destinationUserId)
         {
-            await _usersRepository.Unfollow(sourceId, destinationId);
+            await _usersRepository.Unfollow(sourceUserId, destinationUserId);
 
             return Accepted();
         }
