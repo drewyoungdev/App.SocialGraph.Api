@@ -6,7 +6,6 @@ namespace UserGraph.Models
     {
         public object Id { get; set; }
         public string Label { get; set; }
-        public string Type => GetType().Name;
-        public string PartitionKey => $"{Type}_{Id}";
+        public string PartitionKey => $"{GetType().Name}_{Id}";
     }
 }

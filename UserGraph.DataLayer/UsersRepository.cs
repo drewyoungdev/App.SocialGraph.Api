@@ -1,4 +1,5 @@
 using ExRam.Gremlinq.Core;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using UserGraph.DataLayer.Interfaces;
@@ -15,8 +16,6 @@ namespace UserGraph.DataLayer
             _g = g;
         }
 
-        //await _gremlinQuerySource.V().Drop().ToArrayAsync();
-
         public async Task<User[]> GetAllUsers()
         {
             return await _g
@@ -28,6 +27,16 @@ namespace UserGraph.DataLayer
         {
             return await _g
                 .V<User>(id)
+                .FirstAsync();
+        }
+
+        public async Task<User> CreateUser(User user)
+        {
+            if (user.Id == null)
+                user.Id = Guid.NewGuid().ToString();
+
+            return await _g
+                .AddV(user)
                 .FirstAsync();
         }
 

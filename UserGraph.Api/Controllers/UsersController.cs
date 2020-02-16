@@ -23,6 +23,10 @@ namespace UserGraph.Api.Controllers
         public async Task<ActionResult<User>> Get(string id)
             => await _usersRepository.GetUser(id);
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] User user)
+            => Created("", await _usersRepository.CreateUser(user));
+
         [HttpGet("{id}/following")]
         public async Task<ActionResult<User[]>> GetFollowing(string id)
             => await _usersRepository.GetFollowing(id);
