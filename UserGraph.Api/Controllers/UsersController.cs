@@ -15,20 +15,36 @@ namespace UserGraph.Api.Controllers
             _usersRepository = usersRepository;
         }
 
-       [HttpGet]
-       public async Task<ActionResult<User[]>> Get()
-           => await _usersRepository.GetAllUsers();
+        [HttpGet]
+        public async Task<ActionResult<User[]>> Get()
+            => await _usersRepository.GetAllUsers();
 
-       [HttpGet("{id}")]
-       public async Task<ActionResult<User>> Get(string id)
-           => await _usersRepository.GetUser(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> Get(string id)
+            => await _usersRepository.GetUser(id);
 
-       [HttpGet("{id}/following")]
-       public async Task<ActionResult<string[]>> GetFollowing(string id)
-           => await _usersRepository.GetFollowing(id);
+        [HttpGet("{id}/following")]
+        public async Task<ActionResult<User[]>> GetFollowing(string id)
+            => await _usersRepository.GetFollowing(id);
 
-       [HttpGet("{id}/followers")]
-       public async Task<ActionResult<string[]>> GetFollowers(string id)
-           => await _usersRepository.GetFollowers(id);
+        [HttpGet("{id}/followers")]
+        public async Task<ActionResult<User[]>> GetFollowers(string id)
+            => await _usersRepository.GetFollowers(id);
+
+        [HttpPost("{sourceId}/follow/{destinationId}")]
+        public async Task<IActionResult> Follow(string sourceId, string destinationId)
+        {
+            await _usersRepository.Follow(sourceId, destinationId);
+
+            return Accepted();
+        }
+
+        [HttpPost("{sourceId}/unfollow/{destinationId}")]
+        public async Task<IActionResult> Unfollow(string sourceId, string destinationId)
+        {
+            await _usersRepository.Unfollow(sourceId, destinationId);
+
+            return Accepted();
+        }
     }
 }

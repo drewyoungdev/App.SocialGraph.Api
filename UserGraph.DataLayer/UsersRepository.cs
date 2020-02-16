@@ -31,33 +31,47 @@ namespace UserGraph.DataLayer
                 .FirstAsync();
         }
 
-        public async Task AddFollowsEdge(User source, User destination)
-        {
-            await _g
-                .V<User>(source.Id)
-                .AddE<Follows>()
-                .To(_ => _
-                    .V(destination.Id))
-                .FirstAsync();
-        }
-
-        public async Task<string[]> GetFollowers(string id)
+        public async Task<User[]> GetFollowers(string id)
         {
             return await _g
                 .V<User>(id)
                 .In<Follows>()
                 .OfType<User>()
-                .Values(_ => _.Name)
+                // .Values(_ => _.Name)
                 .ToArrayAsync();
         }
 
-        public async Task<string[]> GetFollowing(string id)
+        public async Task<User[]> GetFollowing(string id)
         {
             return await _g
                 .V<User>(id)
                 .Out<Follows>()
                 .OfType<User>()
-                .Values(_ => _.Name)
+                // .Values(_ => _.Name)
+                .ToArrayAsync();
+        }
+
+        public async Task Follow(string sourceId, string destinationId)
+        {
+            await _g
+                .V<User>(sourceId)
+                .AddE<Follows>()
+                .To(_ => _
+                    .V<User>(destinationId))
+                .FirstAsync();
+        }
+
+        // https://github.com/ExRam/ExRam.Gremlinq/issues/43
+        public async Task Unfollow(string sourceId, string destinationId)
+        {
+            await _g
+                .V<User>(sourceId)
+                .OutE<Follows>()
+                .As((_, e1) => _
+                    .InV<User>()
+                    .Where(user => (string)user.Id == destinationId)
+                    .Select(e1))
+                .Drop()
                 .ToArrayAsync();
         }
     }

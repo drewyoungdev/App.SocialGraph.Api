@@ -7,8 +7,9 @@ namespace UserGraph.DataLayer.Interfaces
     {
         Task<User[]> GetAllUsers();
         Task<User> GetUser(string id);
-        Task AddFollowsEdge(User source, User destination);
-        Task<string[]> GetFollowers(string id);
-        Task<string[]> GetFollowing(string id);
+        Task<User[]> GetFollowers(string id);
+        Task<User[]> GetFollowing(string id);
+        Task Follow(string sourceId, string destinationId);
+        Task Unfollow(string sourceId, string destinationId);
     }
 }
