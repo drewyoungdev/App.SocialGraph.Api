@@ -11,6 +11,7 @@ using UserGraph.Models;
 
 namespace UserGraph.Api
 {
+    // TODO: Remove unnecessary projects
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -58,6 +59,7 @@ namespace UserGraph.Api
 
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<ITweetsRepository, TweetsRepository>();
+            services.AddScoped<IRecommendationsRepository, RecommendationsRepository>();
 
             services.AddControllers();
         }

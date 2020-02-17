@@ -101,52 +101,5 @@ namespace UserGraph.DataLayer
                 .Drop()
                 .ToArrayAsync();
         }
-
-        /// <summary>
-        /// Find tweets by users that thte current user is following
-        /// Note: this is also the same as generating a basic Tweets timeline for a user
-        /// </summary>
-        /// <param name="userId">Current user's userId</param>
-        /// <returns>List of recommended tweets</returns>
-        public async Task<Tweet[]> GetTweetRecommendationsBasedOnFollows(string userId)
-        {
-            // TODO: Look into pagination in gremlin tinkerpop docs
-            return await _g
-                .V<User>(userId)
-                .Out<Follows>()
-                .Out<CreatedBy>()
-                .OfType<Tweet>()
-                .ToArrayAsync();
-        }
-
-        /// <summary>
-        /// Finds tweets liked by users that the current user is following
-        /// Excludes tweets already liked by the current user
-        /// Tweets are limited to within the past 24 hours
-        /// </summary>
-        /// <param name="userId">Current user's userId</param>
-        /// <returns>List of recommended tweets</returns>
-        public async Task<Tweet[]> GetTweetRecommendationsBasedOnLikes(string userId)
-        {
-            // TODO: "recent tweets" should be within the same time frame to avoid duplicate tweets
-            var dateTimeLimit = DateTime.Now.AddDays(-1);
-
-            var likedTweets = await _g
-                .V<User>(userId)
-                .Out<Likes>()
-                .OfType<Tweet>()
-                .Values(x => x.Id)
-                .ToArrayAsync();
-
-            var followersLikeTweets = await _g
-                .V<User>(userId)
-                .Out<Follows>()
-                .Out<Likes>()
-                .OfType<Tweet>()
-                .Where(x => !likedTweets.Contains(x.Id))
-                .ToArrayAsync();
-
-            return followersLikeTweets;
-        }
     }
 }

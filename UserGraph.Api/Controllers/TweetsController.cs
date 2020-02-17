@@ -62,14 +62,5 @@ namespace UserGraph.Api.Controllers
 
             return Accepted();
         }
-
-        // TODO: Refactor to RecommendationsRepository and RecommendationsController
-        [HttpGet("/api/users/{userId}/tweetRecommendations/follows")]
-        public async Task<ActionResult<Tweet[]>> GetTweetRecommendationsBasedOnFollows(string userId)
-            => await _tweetsRepository.GetTweetRecommendationsBasedOnFollows(userId);
-
-        [HttpGet("/api/users/{userId}/tweetRecommendations/likes")]
-        public async Task<ActionResult<Tweet[]>> GetTweetRecommendationsBasedOnLikes(string userId)
-            => await _tweetsRepository.GetTweetRecommendationsBasedOnLikes(userId);
     }
 }

@@ -50,13 +50,5 @@ namespace UserGraph.Api.Controllers
 
             return Accepted();
         }
-
-        [HttpGet("{userId}/userRecommendations/follows")]
-        public async Task<ActionResult<User[]>> GetUserRecommendationsBasedOnFollows(string userId)
-            => await _usersRepository.GetUserRecommendationsBasedOnFollows(userId);
-
-        [HttpGet("{userId}/userRecommendations/likes")]
-        public async Task<ActionResult<User[]>> GetUserRecommendationsBasedOnLikes(string userId)
-            => await _usersRepository.GetUserRecommendationsBasedOnLikes(userId);
     }
 }
