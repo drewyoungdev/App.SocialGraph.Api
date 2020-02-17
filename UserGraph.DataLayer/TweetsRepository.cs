@@ -39,19 +39,35 @@ namespace UserGraph.DataLayer
                 .ToArrayAsync();
         }
 
-        public async Task<Tweet[]> GetTweetsLikedByUserId(string userId)
+        public async Task<UserTweet[]> GetTweetsLikedByUserId(string userId)
         {
-            return await _g
+            (Tweet, User)[] userAndTweets = await _g
                 .V<User>(userId)
                 .Out<Likes>()
                 .OfType<Tweet>()
+                .As((_, tweet) => _
+                    .In<Created>()
+                    .OfType<User>()
+                    .As((__, createdByUser) => __
+                        .Select(tweet, createdByUser)))
                 .ToArrayAsync();
+
+            return userAndTweets
+                .Select(x => new UserTweet()
+                {
+                    Tweet = x.Item1,
+                    CreatedByUser = x.Item2
+                })
+                .ToArray();
         }
 
         public async Task Tweet(string userId, Tweet tweet)
         {
             if (tweet.Id == null)
+            {
                 tweet.Id = Guid.NewGuid().ToString();
+                tweet.CreatedDate = DateTime.UtcNow;
+            }
 
             await _g
                 .V<User>(userId)

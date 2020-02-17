@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ExRam.Gremlinq.Core;
 using Microsoft.AspNetCore.Mvc;
@@ -123,7 +122,8 @@ namespace UserGraph.Api.Controllers
                     var tweet = new Tweet()
                     {
                         Id = Guid.NewGuid().ToString(),
-                        Text = ""
+                        Text = RandomString(random),
+                        CreatedDate = DateTime.UtcNow
                     };
 
                     await _g

@@ -24,11 +24,11 @@ namespace UserGraph.Api.Controllers
             => await _recommendationsRepository.GetUserRecommendationsBasedOnLikes(userId);
 
         [HttpGet("tweets/basedOnFollows")]
-        public async Task<ActionResult<Tweet[]>> GetTweetRecommendationsBasedOnFollows(string userId)
+        public async Task<ActionResult<UserTweet[]>> GetTweetRecommendationsBasedOnFollows(string userId)
             => await _recommendationsRepository.GetTweetRecommendationsBasedOnFollows(userId);
 
         [HttpGet("tweets/basedOnLikes")]
-        public async Task<ActionResult<Tweet[]>> GetTweetRecommendationsBasedOnLikes(string userId)
+        public async Task<ActionResult<UserTweet[]>> GetTweetRecommendationsBasedOnLikes(string userId)
             => await _recommendationsRepository.GetTweetRecommendationsBasedOnLikes(userId);
     }
 }

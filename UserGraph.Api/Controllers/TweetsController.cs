@@ -32,7 +32,7 @@ namespace UserGraph.Api.Controllers
             => await _tweetsRepository.GetLikes(tweetId);
 
         [HttpGet("likedBy/{userId}")]
-        public async Task<ActionResult<Tweet[]>> GetTweetsLikedByUserId(string userId)
+        public async Task<ActionResult<UserTweet[]>> GetTweetsLikedByUserId(string userId)
             => await _tweetsRepository.GetTweetsLikedByUserId(userId);
 
         [HttpGet("/api/users/{userId}/tweets")]

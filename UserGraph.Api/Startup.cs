@@ -12,6 +12,7 @@ using UserGraph.Models;
 namespace UserGraph.Api
 {
     // TODO: Remove unnecessary projects
+    // TODO: Test with connecting to local CosmosDB Emulator
     public class Startup
     {
         public Startup(IConfiguration configuration)

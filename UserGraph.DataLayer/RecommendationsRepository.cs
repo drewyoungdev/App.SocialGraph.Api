@@ -111,15 +111,27 @@ namespace UserGraph.DataLayer
         /// </summary>
         /// <param name="userId">Current user's userId</param>
         /// <returns>List of recommended tweets</returns>
-        public async Task<Tweet[]> GetTweetRecommendationsBasedOnFollows(string userId)
+        public async Task<UserTweet[]> GetTweetRecommendationsBasedOnFollows(string userId)
         {
             // TODO: Look into pagination in gremlin tinkerpop docs
-            return await _g
+            (Tweet, User)[] recommendations = await _g
                 .V<User>(userId)
                 .Out<Follows>()
-                .Out<Created>()
-                .OfType<Tweet>()
+                .OfType<User>()
+                .As((_, followingUser) => _
+                    .Out<Created>()
+                    .OfType<Tweet>()
+                    .As((__, tweet) => __
+                        .Select(tweet, followingUser)))
                 .ToArrayAsync();
+
+            return recommendations
+                .Select(x => new UserTweet()
+                {
+                    Tweet = x.Item1,
+                    CreatedByUser = x.Item2
+                })
+                .ToArray();
         }
 
         /// <summary>
@@ -129,7 +141,7 @@ namespace UserGraph.DataLayer
         /// </summary>
         /// <param name="userId">Current user's userId</param>
         /// <returns>List of recommended tweets</returns>
-        public async Task<Tweet[]> GetTweetRecommendationsBasedOnLikes(string userId)
+        public async Task<UserTweet[]> GetTweetRecommendationsBasedOnLikes(string userId)
         {
             // TODO: "recent tweets" should be within the same time frame to avoid duplicate tweets
             var dateTimeLimit = DateTime.Now.AddDays(-1);
@@ -141,15 +153,25 @@ namespace UserGraph.DataLayer
                 .Values(x => x.Id)
                 .ToArrayAsync();
 
-            var followersLikeTweets = await _g
+            (Tweet, User)[] recommendations = await _g
                 .V<User>(userId)
                 .Out<Follows>()
-                .Out<Likes>()
-                .OfType<Tweet>()
-                .Where(x => !likedTweets.Contains(x.Id))
+                .OfType<User>()
+                .As((_, followingUser) => _
+                    .Out<Likes>()
+                    .OfType<Tweet>()
+                    .Where(x => !likedTweets.Contains(x.Id))
+                    .As((__, tweet) => __
+                        .Select(tweet, followingUser)))
                 .ToArrayAsync();
 
-            return followersLikeTweets;
+            return recommendations
+                .Select(x => new UserTweet()
+                {
+                    Tweet = x.Item1,
+                    CreatedByUser = x.Item2
+                })
+                .ToArray();
         }
     }
 }

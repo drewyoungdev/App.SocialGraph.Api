@@ -7,7 +7,7 @@ namespace UserGraph.DataLayer.Interfaces
     {
         Task<User[]> GetUserRecommendationsBasedOnFollows(string userId);
         Task<User[]> GetUserRecommendationsBasedOnLikes(string userId);
-        Task<Tweet[]> GetTweetRecommendationsBasedOnFollows(string userId);
-        Task<Tweet[]> GetTweetRecommendationsBasedOnLikes(string userId);
+        Task<UserTweet[]> GetTweetRecommendationsBasedOnFollows(string userId);
+        Task<UserTweet[]> GetTweetRecommendationsBasedOnLikes(string userId);
     }
 }

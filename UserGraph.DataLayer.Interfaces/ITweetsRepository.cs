@@ -8,7 +8,7 @@ namespace UserGraph.DataLayer.Interfaces
         Task<Tweet[]> GetAllTweets();
         Task<Tweet> GetTweetById(string tweetId);
         Task<Tweet[]> GetTweetsByUserId(string userId);
-        Task<Tweet[]> GetTweetsLikedByUserId(string userId);
+        Task<UserTweet[]> GetTweetsLikedByUserId(string userId);
         Task Tweet(string userId, Tweet tweet);
 
         Task<User[]> GetLikes(string tweetId);

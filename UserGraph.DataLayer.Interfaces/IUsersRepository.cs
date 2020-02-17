@@ -3,7 +3,6 @@ using UserGraph.Models;
 
 namespace UserGraph.DataLayer.Interfaces
 {
-    // TODO: Rename Followers/Following method?
     public interface IUsersRepository
     {
         Task<User[]> GetAllUsers();
