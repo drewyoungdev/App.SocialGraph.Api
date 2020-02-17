@@ -12,6 +12,15 @@ namespace UserGraph.Api.Controllers
     [Route("api/init")]
     public class InitController : ControllerBase
     {
+        private readonly List<User> CONTROLLED_LIST_OF_USERS = new List<User>()
+        {
+            new User(){ Id = "Drew", Name = "Drew" },
+            new User(){ Id = "Mike", Name = "Mike" },
+            new User(){ Id = "Andre", Name = "Andre"},
+            new User(){ Id = "Jon", Name = "Jon" },
+            new User(){ Id = "Erica", Name = "Erica" }
+        };
+
         private const int NUMBER_OF_USERS = 5;
         private const int NUMBER_OF_TWEETS_PER_USER = 10;
 
@@ -34,6 +43,11 @@ namespace UserGraph.Api.Controllers
         {
             // Drop Graph (May need to do try-catch to drop Edges first then Vertices or else 429)
             await _g
+                .E()
+                .Drop()
+                .ToArrayAsync();
+
+            await _g
                 .V()
                 .Drop()
                 .ToArrayAsync();
@@ -41,28 +55,37 @@ namespace UserGraph.Api.Controllers
             Random random = new Random();
 
             // Create Users & User Id List
-            List<User> users = new List<User>(NUMBER_OF_USERS);
+            List<User> users = CONTROLLED_LIST_OF_USERS;
 
-            for (int i = 0; i < NUMBER_OF_USERS; i++)
+            foreach (var user in users)
             {
-                var user = new User()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = RandomString(random)
-                };
-
                 await _g
                     .AddV(user)
                     .FirstAsync();
-
-                users.Add(user);
             }
+
+            // List<User> users = new List<User>(NUMBER_OF_USERS);
+
+            // for (int i = 0; i < NUMBER_OF_USERS; i++)
+            // {
+            //     var user = new User()
+            //     {
+            //         Id = Guid.NewGuid().ToString(),
+            //         Name = RandomString(random)
+            //     };
+
+            //     await _g
+            //         .AddV(user)
+            //         .FirstAsync();
+
+            //     users.Add(user);
+            // }
 
             // Create Random Followers
             foreach (var user in users)
             {
                 // Pick random int between 0 - NUMBER_OF_USERS
-                int numberOfUsersFollowing = random.Next(0, NUMBER_OF_USERS + 1);
+                int numberOfUsersFollowing = random.Next(0, users.Count + 1);
 
                 // Create list of "following" list
                 var usersFollowing = new List<User>(numberOfUsersFollowing);

@@ -10,10 +10,13 @@ namespace UserGraph.DataLayer.Interfaces
         Task<User> CreateUser(User user);
 
         Task<User[]> GetFollowers(string userId);
+        // Task<int> GetFollowersCount(string userId);
         Task<User[]> GetFollowing(string userId);
+        // Task<int> GetFollowingCount(string userId);
         Task Follow(string sourceUserId, string destinationUserId);
         Task Unfollow(string sourceId, string destinationId);
 
-        // TODO: Get Users Followed by Users You Follow (n-steps away where n = 1) // https://neo4j.com/blog/social-networks-in-the-database-using-a-graph-database/
+        Task<User[]> GetUserRecommendationsBasedOnFollows(string userId);
+        Task<User[]> GetUserRecommendationsBasedOnLikes(string userId);
     }
 }

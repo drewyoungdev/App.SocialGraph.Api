@@ -34,12 +34,12 @@ namespace UserGraph.Api
             {
                 return GremlinQuerySource.g
                     //.AddStrategies(new PartitionKeyStrategy())
+                    // for 7.x.x
                     .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>())
                     .ConfigureModel(model => model
                         //.ConfigureElements(elem => elem.UseCamelCaseLabels())
                         .ConfigureProperties(prop => prop.UseCamelCaseNames())
                     )
-                    //.UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovyString)
                     //.UseLogger(logger)
                     // for 8.x.x preview:
                     //.ConfigureEnvironment(env => env
@@ -50,12 +50,10 @@ namespace UserGraph.Api
                     //    )
                     //    //.UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovy)
                     //    //.UseLogger(logger)
-                    .UseCosmosDb(
-                        gremlinUri,
-                        gremlinDatabaseName,
-                        gremlinCollectionName,
-                        gremlinAuthKey
-                     );
+                    // // For returning generated query
+                    // .UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovyString)
+                    .UseCosmosDb(gremlinUri, gremlinDatabaseName, gremlinCollectionName, gremlinAuthKey)
+                    ;
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();
