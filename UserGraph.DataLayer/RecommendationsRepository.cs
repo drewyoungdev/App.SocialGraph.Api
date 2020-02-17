@@ -72,6 +72,7 @@ namespace UserGraph.DataLayer
                 .Out<Follows>()
                 .OfType<User>()
                 .Where(x => (string)x.Id != userId && !directFollows.Contains(x.Id))
+                .Dedup()
                 .ToArrayAsync();
 
             return recommendations;
