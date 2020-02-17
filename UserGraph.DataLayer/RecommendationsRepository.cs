@@ -117,7 +117,7 @@ namespace UserGraph.DataLayer
             return await _g
                 .V<User>(userId)
                 .Out<Follows>()
-                .Out<CreatedBy>()
+                .Out<Created>()
                 .OfType<Tweet>()
                 .ToArrayAsync();
         }

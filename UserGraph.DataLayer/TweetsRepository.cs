@@ -34,7 +34,7 @@ namespace UserGraph.DataLayer
         {
             return await _g
                 .V<User>(userId)
-                .Out<CreatedBy>()
+                .Out<Created>()
                 .OfType<Tweet>()
                 .ToArrayAsync();
         }
@@ -55,7 +55,7 @@ namespace UserGraph.DataLayer
 
             await _g
                 .V<User>(userId)
-                .AddE<CreatedBy>()
+                .AddE<Created>()
                 .To(_ => _
                     .AddV(tweet))
                 .FirstAsync();

@@ -128,7 +128,7 @@ namespace UserGraph.Api.Controllers
 
                     await _g
                         .V<User>(user.Id)
-                        .AddE<CreatedBy>()
+                        .AddE<Created>()
                         .To(_ => _
                             .AddV(tweet))
                         .FirstAsync();
