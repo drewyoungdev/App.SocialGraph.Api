@@ -23,17 +23,25 @@ namespace UserGraph.Api.Controllers
         public async Task<ActionResult<User>> Get(string userId)
             => await _usersRepository.GetUserById(userId);
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
-            => Created("", await _usersRepository.CreateUser(user));
+        [HttpGet("{userId}/followers")]
+        public async Task<ActionResult<User[]>> GetFollowers(string userId)
+            => await _usersRepository.GetFollowers(userId);
+
+        [HttpGet("{userId}/followers/count")]
+        public async Task<ActionResult<int>> GetFollowersCount(string userId)
+            => await _usersRepository.GetFollowersCount(userId);
 
         [HttpGet("{userId}/following")]
         public async Task<ActionResult<User[]>> GetFollowing(string userId)
             => await _usersRepository.GetFollowing(userId);
 
-        [HttpGet("{userId}/followers")]
-        public async Task<ActionResult<User[]>> GetFollowers(string userId)
-            => await _usersRepository.GetFollowers(userId);
+        [HttpGet("{userId}/following/count")]
+        public async Task<ActionResult<int>> GetFollowingCount(string userId)
+            => await _usersRepository.GetFollowingCount(userId);
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] User user)
+            => Created("", await _usersRepository.CreateUser(user));
 
         [HttpPost("{sourceUserId}/follow/{destinationUserId}")]
         public async Task<IActionResult> Follow(string sourceUserId, string destinationUserId)

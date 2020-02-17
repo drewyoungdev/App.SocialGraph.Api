@@ -51,6 +51,15 @@ namespace UserGraph.DataLayer
                 .ToArrayAsync();
         }
 
+        public async Task<int> GetFollowersCount(string userId)
+        {
+            return await _g
+                .V<User>(userId)
+                .In<Follows>()
+                .OfType<User>()
+                .CountAsync();
+        }
+
         public async Task<User[]> GetFollowing(string userId)
         {
             return await _g
@@ -59,6 +68,15 @@ namespace UserGraph.DataLayer
                 .OfType<User>()
                 // .Values(_ => _.Name)
                 .ToArrayAsync();
+        }
+
+        public async Task<int> GetFollowingCount(string userId)
+        {
+            return await _g
+                .V<User>(userId)
+                .Out<Follows>()
+                .OfType<User>()
+                .CountAsync();
         }
 
         public async Task Follow(string sourceUserId, string destinationUserId)

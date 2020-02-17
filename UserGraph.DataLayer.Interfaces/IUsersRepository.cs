@@ -3,7 +3,6 @@ using UserGraph.Models;
 
 namespace UserGraph.DataLayer.Interfaces
 {
-    // TODO: Add Follower and Following Count
     // TODO: Rename Followers/Following method?
     public interface IUsersRepository
     {
@@ -12,9 +11,9 @@ namespace UserGraph.DataLayer.Interfaces
         Task<User> CreateUser(User user);
 
         Task<User[]> GetFollowers(string userId);
-        // Task<int> GetFollowersCount(string userId);
+        Task<int> GetFollowersCount(string userId);
         Task<User[]> GetFollowing(string userId);
-        // Task<int> GetFollowingCount(string userId);
+        Task<int> GetFollowingCount(string userId);
         Task Follow(string sourceUserId, string destinationUserId);
         Task Unfollow(string sourceId, string destinationId);
     }
