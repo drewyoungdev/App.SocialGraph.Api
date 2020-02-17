@@ -11,15 +11,6 @@ namespace UserGraph.Api.Controllers
     [Route("api/init")]
     public class InitController : ControllerBase
     {
-        private readonly List<User> CONTROLLED_LIST_OF_USERS = new List<User>()
-        {
-            new User(){ Id = "Drew", Name = "Drew" },
-            new User(){ Id = "Mike", Name = "Mike" },
-            new User(){ Id = "Andre", Name = "Andre"},
-            new User(){ Id = "Jon", Name = "Jon" },
-            new User(){ Id = "Erica", Name = "Erica" }
-        };
-
         private const int NUMBER_OF_USERS = 5;
         private const int NUMBER_OF_TWEETS_PER_USER = 10;
 
@@ -40,7 +31,24 @@ namespace UserGraph.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Init()
         {
-            // Drop Graph (May need to do try-catch to drop Edges first then Vertices or else 429)
+            await DropTables();
+
+            Random random = new Random();
+
+            var users = await CreateNonRandomUsers();
+            // List<User> users = await CreateRandomUsers(random);
+
+            await CreateRandomFollowers(users, random);
+
+            var userIdsAndPosts = await CreateRandomTweets(users, random);
+
+            await CreateRandomLikes(users, userIdsAndPosts, random);
+
+            return Ok();
+        }
+
+        private async Task DropTables()
+        {
             await _g
                 .E()
                 .Drop()
@@ -50,11 +58,18 @@ namespace UserGraph.Api.Controllers
                 .V()
                 .Drop()
                 .ToArrayAsync();
+        }
 
-            Random random = new Random();
-
-            // Create Users & User Id List
-            List<User> users = CONTROLLED_LIST_OF_USERS;
+        private async Task<List<User>> CreateNonRandomUsers()
+        {
+            var users = new List<User>()
+            {
+                new User(){ Id = "Drew", Name = "Drew" },
+                new User(){ Id = "Mike", Name = "Mike" },
+                new User(){ Id = "Andre", Name = "Andre"},
+                new User(){ Id = "Jon", Name = "Jon" },
+                new User(){ Id = "Erica", Name = "Erica" }
+            };
 
             foreach (var user in users)
             {
@@ -63,24 +78,33 @@ namespace UserGraph.Api.Controllers
                     .FirstAsync();
             }
 
-            // List<User> users = new List<User>(NUMBER_OF_USERS);
+            return users;
+        }
 
-            // for (int i = 0; i < NUMBER_OF_USERS; i++)
-            // {
-            //     var user = new User()
-            //     {
-            //         Id = Guid.NewGuid().ToString(),
-            //         Name = RandomString(random)
-            //     };
+        private async Task<List<User>> CreateRandomUsers(Random random)
+        {
+            List<User> users = new List<User>(NUMBER_OF_USERS);
 
-            //     await _g
-            //         .AddV(user)
-            //         .FirstAsync();
+            for (int i = 0; i < NUMBER_OF_USERS; i++)
+            {
+                var user = new User()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = RandomString(random)
+                };
 
-            //     users.Add(user);
-            // }
+                await _g
+                    .AddV(user)
+                    .FirstAsync();
 
-            // Create Random Followers
+                users.Add(user);
+            }
+
+            return users;
+        }
+
+        private async Task CreateRandomFollowers(List<User> users, Random random)
+        {
             foreach (var user in users)
             {
                 // Pick random int between 0 - NUMBER_OF_USERS
@@ -106,8 +130,10 @@ namespace UserGraph.Api.Controllers
                         .FirstAsync();
                 }
             }
+        }
 
-            // Create Random Tweets
+        private async Task<Dictionary<string, List<Tweet>>> CreateRandomTweets(List<User> users, Random random)
+        {
             var userIdsAndPosts = new Dictionary<string, List<Tweet>>();
 
             foreach (var user in users)
@@ -139,7 +165,11 @@ namespace UserGraph.Api.Controllers
                 userIdsAndPosts.Add((string)user.Id, tweets);
             }
 
-            // Create Random Likes
+            return userIdsAndPosts;
+        }
+
+        private async Task CreateRandomLikes(List<User> users, Dictionary<string, List<Tweet>> userIdsAndPosts, Random random)
+        {
             foreach (var user in users)
             {
                 // foreach user loops through all users that's not the current one
@@ -164,8 +194,6 @@ namespace UserGraph.Api.Controllers
                     }
                 }
             }
-
-            return Ok();
         }
     }
 }
