@@ -4,14 +4,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using UserGraph.Configuration;
 using UserGraph.DataLayer;
 using UserGraph.DataLayer.Interfaces;
 using UserGraph.Models;
 
 namespace UserGraph.Api
 {
-    // TODO: Remove unnecessary projects
     // TODO: Test with connecting to local CosmosDB Emulator
     public class Startup
     {
@@ -25,8 +23,6 @@ namespace UserGraph.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<AzureSettings>(Configuration.GetSection(nameof(AzureSettings)));
-
             string gremlinUri = Configuration["AzureSettings:GremlinEndpoint"];
             string gremlinDatabaseName = Configuration["AzureSettings:GremlinDatabaseName"];
             string gremlinCollectionName = Configuration["AzureSettings:GremlinCollectionName"];

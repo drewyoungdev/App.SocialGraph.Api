@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UserGraph.Configuration\UserGraph.Configuration.csproj" />
     <ProjectReference Include="..\UserGraph.DataLayer.Interfaces\UserGraph.DataLayer.Interfaces.csproj" />
     <ProjectReference Include="..\UserGraph.DataLayer\UserGraph.DataLayer.csproj" />
   </ItemGroup>
