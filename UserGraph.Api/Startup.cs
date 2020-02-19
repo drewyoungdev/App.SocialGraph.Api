@@ -10,27 +10,31 @@ using UserGraph.Models;
 
 namespace UserGraph.Api
 {
-    // TODO: Test with connecting to local CosmosDB Emulator
+    // TODO: Add summaries
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// For local gremlin development:
+        /// Install the Cosmos DB Local Emulator
+        /// Start the emulator with the following command: CosmosDB.Emulator.exe /EnableGremlinEndpoint
+        /// Create your database and your collection
+        /// If you wish to connect to your gremlin server directly, follow these instructions:
+        /// https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator#gremlin-api
+        /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            string gremlinUri = Configuration["AzureSettings:GremlinEndpoint"];
-            string gremlinDatabaseName = Configuration["AzureSettings:GremlinDatabaseName"];
-            string gremlinCollectionName = Configuration["AzureSettings:GremlinCollectionName"];
-            string gremlinAuthKey = Configuration["AzureSettings:GremlinAuthKey"];
-
             services.AddSingleton<IGremlinQuerySource>(serviceProvider =>
             {
-                return GremlinQuerySource.g
+                var gremlinQuerySource = GremlinQuerySource.g
                     //.AddStrategies(new PartitionKeyStrategy())
                     // for 7.x.x
                     .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>())
@@ -50,8 +54,24 @@ namespace UserGraph.Api
                     //    //.UseLogger(logger)
                     // // For returning generated query
                     // .UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovyString)
-                    .UseCosmosDb(gremlinUri, gremlinDatabaseName, gremlinCollectionName, gremlinAuthKey)
                     ;
+
+                if (Environment.IsDevelopment())
+                {
+                    return gremlinQuerySource
+                        .UseCosmosDbEmulator(
+                            Configuration["LocalAzureSettings:GremlinEndpoint"],
+                            Configuration["LocalAzureSettings:GremlinDatabaseName"],
+                            Configuration["LocalAzureSettings:GremlinCollectionName"],
+                            Configuration["LocalAzureSettings:GremlinAuthKey"]);
+                }
+
+                return gremlinQuerySource
+                    .UseCosmosDb(
+                        Configuration["AzureSettings:GremlinEndpoint"],
+                        Configuration["AzureSettings:GremlinDatabaseName"],
+                        Configuration["AzureSettings:GremlinCollectionName"],
+                        Configuration["LocalAzureSettings:GremlinAuthKey"]);
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();
