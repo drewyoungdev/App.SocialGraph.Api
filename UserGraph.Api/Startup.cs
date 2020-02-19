@@ -71,7 +71,7 @@ namespace UserGraph.Api
                         Configuration["AzureSettings:GremlinEndpoint"],
                         Configuration["AzureSettings:GremlinDatabaseName"],
                         Configuration["AzureSettings:GremlinCollectionName"],
-                        Configuration["LocalAzureSettings:GremlinAuthKey"]);
+                        Configuration["AzureSettings:GremlinAuthKey"]);
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();

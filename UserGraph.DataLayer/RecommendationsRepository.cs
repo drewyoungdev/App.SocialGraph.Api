@@ -33,30 +33,21 @@ namespace UserGraph.DataLayer
 
             // var query = await _g
             //     .V<User>(userId)
-            //     .Out<Follows>()
-            //     .OfType<User>()
-            //     .Fold()
-            //     .As((_, directFollows) => _
-            //         .V<User>()
-            //         .Where(user => directFollows.Contains(user)))
-            //     .ToArrayAsync();
-
-            // var query = await _g
-            //     .V<User>(userId)
             //     .As((_, self) => _
             //         .Out<Follows>()
             //         .Aggregate((__, directFollows) => __
             //             .Out<Follows>()
             //                 .OfType<User>()
-            //                 // How to do without directFollows
+            //                 // How to exclude directFollows?
             //                 .Where(x => x != self
-            //                     && !directFollows.Contains(x.Id)
-            //                 ))
-            //     )
+            //                     // && !directFollows.Contains(x)
+            //                 )))
             //     // .Cast<string>()
             //     // .FirstAsync();
             //     .OfType<User>()
             //     .ToArrayAsync();
+
+            // return new User[] { };
             #endregion
 
             var directFollows = await _g
