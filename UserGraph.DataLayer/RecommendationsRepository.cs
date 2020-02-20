@@ -9,6 +9,13 @@ namespace UserGraph.DataLayer
 {
     // TODO: Look into how to paginate queries so we can control of how far out a user can traverse our graph
     // But also have context of where they left off. This would essentially be the infinite scroll feature.
+    // TODO: Or should recommendation endpoints all start with gathering the current user context
+    // e.g. User Following Id's and Recent User Liked Posts.
+    // This would allow us to query multiple recommendations at once
+
+    /// <summary>
+    /// Provides access to recommendation based queries for various vertices
+    /// </summary>
     public class RecommendationsRepository : IRecommendationsRepository
     {
         private readonly IGremlinQuerySource _g;
@@ -21,36 +28,16 @@ namespace UserGraph.DataLayer
         /// <summary>
         /// Finds user one-hop away from users the current user is following
         /// Excludes the current user and any users that the current is already following
+        /// Eventually would like to replicate the following:
+        /// http://tinkerpop.apache.org/docs/current/recipes/#recommendation
+        /// g.V().has('id', 'Drew').as('self').out('Follows').aggregate('direct-follows').out('Follows').where(neq('self')).where(without('direct-follows'))
         /// </summary>
         /// <param name="userId">Current user's userId</param>
         /// <returns>List of recommended users</returns>
         public async Task<User[]> GetUserRecommendationsBasedOnFollows(string userId)
         {
-            // TODO: Figure out how to build into single query
-            #region Test query
-            // http://tinkerpop.apache.org/docs/current/recipes/#duplicate-vertex
-            // g.V().has('id', 'Drew').as('self').out('Follows').aggregate('direct-follows').out('Follows').where(neq('self')).where(without('direct-follows'))
-
             // int limitFollowersOfFollowers = 10;
 
-            // var result = await _g
-            //     .V<User>(userId)
-            //     .As((_, self) => _
-            //         .Out<Follows>()
-            //         .As((__, directFollower) => __
-            //             .Out<Follows>()
-            //                 .OfType<User>()
-            //                 // How to exclude directFollows?
-            //                 // .Where(x => x != self
-            //                 //     && x != directFollower)
-            //                 ))
-            //     .Cast<string>()
-            //     .FirstAsync();
-                // .OfType<User>()
-                // .ToArrayAsync();
-
-
-            // Alternatively, could we just return all vertices and somehow group them and do the exclude in .NET
             var directFollowsAndTwoHopFollows = await _g
                 .V<User>(userId)
                 .Out<Follows>()
@@ -72,25 +59,6 @@ namespace UserGraph.DataLayer
                 .ToArray();
 
             return recommendations;
-            #endregion
-
-            // var directFollows = await _g
-            //     .V<User>(userId)
-            //     .Out<Follows>()
-            //     .OfType<User>()
-            //     .Values(x => x.Id)
-            //     .ToArrayAsync();
-
-            // var recommendations = await _g
-            //     .V<User>(userId)
-            //     .Out<Follows>()
-            //     .Out<Follows>()
-            //     .OfType<User>()
-            //     .Where(x => (string)x.Id != userId && !directFollows.Contains(x.Id))
-            //     .Dedup()
-            //     .ToArrayAsync();
-
-            // return recommendations;
         }
 
         /// <summary>
