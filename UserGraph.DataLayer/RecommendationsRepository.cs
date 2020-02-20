@@ -7,6 +7,8 @@ using UserGraph.Models;
 
 namespace UserGraph.DataLayer
 {
+    // TODO: Look into how to paginate queries so we can control of how far out a user can traverse our graph
+    // But also have context of where they left off. This would essentially be the infinite scroll feature.
     public class RecommendationsRepository : IRecommendationsRepository
     {
         private readonly IGremlinQuerySource _g;
@@ -31,42 +33,64 @@ namespace UserGraph.DataLayer
 
             // int limitFollowersOfFollowers = 10;
 
-            // var query = await _g
+            // var result = await _g
             //     .V<User>(userId)
             //     .As((_, self) => _
             //         .Out<Follows>()
-            //         .Aggregate((__, directFollows) => __
+            //         .As((__, directFollower) => __
             //             .Out<Follows>()
             //                 .OfType<User>()
             //                 // How to exclude directFollows?
-            //                 .Where(x => x != self
-            //                     // && !directFollows.Contains(x)
-            //                 )))
-            //     // .Cast<string>()
-            //     // .FirstAsync();
-            //     .OfType<User>()
-            //     .ToArrayAsync();
+            //                 // .Where(x => x != self
+            //                 //     && x != directFollower)
+            //                 ))
+            //     .Cast<string>()
+            //     .FirstAsync();
+                // .OfType<User>()
+                // .ToArrayAsync();
 
-            // return new User[] { };
-            #endregion
 
-            var directFollows = await _g
+            // Alternatively, could we just return all vertices and somehow group them and do the exclude in .NET
+            var directFollowsAndTwoHopFollows = await _g
                 .V<User>(userId)
                 .Out<Follows>()
                 .OfType<User>()
-                .Values(x => x.Id)
-                .ToArrayAsync();
-
-            var recommendations = await _g
-                .V<User>(userId)
-                .Out<Follows>()
-                .Out<Follows>()
-                .OfType<User>()
-                .Where(x => (string)x.Id != userId && !directFollows.Contains(x.Id))
+                .Aggregate((_, directFollows) => _
+                    .Out<Follows>()
+                    .OfType<User>()
+                    .Aggregate((__, twoHopFollows) => __
+                        .Select(directFollows, twoHopFollows)))
                 .Dedup()
-                .ToArrayAsync();
+                .FirstOrDefaultAsync();
+
+            if (directFollowsAndTwoHopFollows.Item1 == null || directFollowsAndTwoHopFollows.Item2 == null)
+                return new User[] {};
+
+            var recommendations = directFollowsAndTwoHopFollows.Item2
+                .Where(x => (string)x.Id != userId)
+                .Except(directFollowsAndTwoHopFollows.Item1, new UserVertextComparer())
+                .ToArray();
 
             return recommendations;
+            #endregion
+
+            // var directFollows = await _g
+            //     .V<User>(userId)
+            //     .Out<Follows>()
+            //     .OfType<User>()
+            //     .Values(x => x.Id)
+            //     .ToArrayAsync();
+
+            // var recommendations = await _g
+            //     .V<User>(userId)
+            //     .Out<Follows>()
+            //     .Out<Follows>()
+            //     .OfType<User>()
+            //     .Where(x => (string)x.Id != userId && !directFollows.Contains(x.Id))
+            //     .Dedup()
+            //     .ToArrayAsync();
+
+            // return recommendations;
         }
 
         /// <summary>
