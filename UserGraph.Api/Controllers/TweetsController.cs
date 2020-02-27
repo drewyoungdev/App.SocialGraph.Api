@@ -24,7 +24,7 @@ namespace UserGraph.Api.Controllers
             => await _tweetsRepository.GetTweetById(tweetId);
 
         [HttpGet("{tweetId}/likes/count")]
-        public async Task<ActionResult<int>> GetLikesCount(string tweetId)
+        public async Task<ActionResult<long>> GetLikesCount(string tweetId)
             => await _tweetsRepository.GetLikesCount(tweetId);
 
         [HttpGet("{tweetId}/likes")]

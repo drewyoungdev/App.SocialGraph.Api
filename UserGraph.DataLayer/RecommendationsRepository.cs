@@ -28,35 +28,22 @@ namespace UserGraph.DataLayer
         /// <summary>
         /// Finds user one-hop away from users the current user is following
         /// Excludes the current user and any users that the current is already following
-        /// Eventually would like to replicate the following:
-        /// http://tinkerpop.apache.org/docs/current/recipes/#recommendation
-        /// g.V().has('id', 'Drew').as('self').out('Follows').aggregate('direct-follows').out('Follows').where(neq('self')).where(without('direct-follows'))
         /// </summary>
         /// <param name="userId">Current user's userId</param>
         /// <returns>List of recommended users</returns>
         public async Task<User[]> GetUserRecommendationsBasedOnFollows(string userId)
         {
-            // int limitFollowersOfFollowers = 10;
-
-            var directFollowsAndTwoHopFollows = await _g
+            var recommendations = await _g
                 .V<User>(userId)
-                .Out<Follows>()
-                .OfType<User>()
-                .Aggregate((_, directFollows) => _
+                .As((_, self) => _
                     .Out<Follows>()
-                    .OfType<User>()
-                    .Aggregate((__, twoHopFollows) => __
-                        .Select(directFollows, twoHopFollows)))
+                    .Aggregate((__, directFollows) => __
+                        .Out<Follows>()
+                            .OfType<User>()
+                            .Where(x => x != self && !directFollows.Contains(x))))
+                .OfType<User>()
                 .Dedup()
-                .FirstOrDefaultAsync();
-
-            if (directFollowsAndTwoHopFollows.Item1 == null || directFollowsAndTwoHopFollows.Item2 == null)
-                return new User[] {};
-
-            var recommendations = directFollowsAndTwoHopFollows.Item2
-                .Where(x => (string)x.Id != userId)
-                .Except(directFollowsAndTwoHopFollows.Item1, new UserVertextComparer())
-                .ToArray();
+                .ToArrayAsync();
 
             return recommendations;
         }

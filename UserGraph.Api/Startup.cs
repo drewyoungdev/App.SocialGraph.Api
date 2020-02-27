@@ -1,3 +1,4 @@
+using System;
 using ExRam.Gremlinq.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,44 +35,20 @@ namespace UserGraph.Api
         {
             services.AddSingleton<IGremlinQuerySource>(serviceProvider =>
             {
-                var gremlinQuerySource = GremlinQuerySource.g
+                return GremlinQuerySource.g
                     //.AddStrategies(new PartitionKeyStrategy())
-                    // for 7.x.x
-                    .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>())
-                    .ConfigureModel(model => model
-                        //.ConfigureElements(elem => elem.UseCamelCaseLabels())
-                        .ConfigureProperties(prop => prop.UseCamelCaseNames())
-                    )
-                    //.UseLogger(logger)
-                    // for 8.x.x preview:
-                    //.ConfigureEnvironment(env => env
-                    //    .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>(lookup => lookup.IncludeAssembliesOfBaseTypes()))
-                    //    .ConfigureModel(model => model
-                    //        //.ConfigureElements(elem => elem.UseCamelCaseLabels())
-                    //        .ConfigureProperties(prop => prop.UseCamelCaseNames()))
-                    //    )
-                    //    //.UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovy)
-                    //    //.UseLogger(logger)
-                    // // For returning generated query
-                    // .UseExecutionPipeline(GremlinQueryExecutionPipeline.EchoGroovyString)
-                    ;
-
-                if (Environment.IsDevelopment())
-                {
-                    return gremlinQuerySource
-                        .UseCosmosDbEmulator(
-                            Configuration["LocalAzureSettings:GremlinEndpoint"],
-                            Configuration["LocalAzureSettings:GremlinDatabaseName"],
-                            Configuration["LocalAzureSettings:GremlinCollectionName"],
-                            Configuration["LocalAzureSettings:GremlinAuthKey"]);
-                }
-
-                return gremlinQuerySource
-                    .UseCosmosDb(
-                        Configuration["AzureSettings:GremlinEndpoint"],
-                        Configuration["AzureSettings:GremlinDatabaseName"],
-                        Configuration["AzureSettings:GremlinCollectionName"],
-                        Configuration["AzureSettings:GremlinAuthKey"]);
+                    .ConfigureEnvironment(env => env
+                       .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>(lookup => lookup.IncludeAssembliesOfBaseTypes()))
+                       .ConfigureModel(model => model
+                           //.ConfigureElements(elem => elem.UseCamelCaseLabels())
+                           .ConfigureProperties(prop => prop.UseCamelCaseNames())
+                        )
+                        .UseCosmosDb(
+                            new Uri(Configuration["AzureSettings:GremlinEndpoint"]),
+                            Configuration["AzureSettings:GremlinDatabaseName"],
+                            Configuration["AzureSettings:GremlinCollectionName"],
+                            Configuration["AzureSettings:GremlinAuthKey"])
+                    );
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();

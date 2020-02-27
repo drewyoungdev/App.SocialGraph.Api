@@ -28,7 +28,7 @@ namespace UserGraph.Api.Controllers
             => await _usersRepository.GetFollowers(userId);
 
         [HttpGet("{userId}/followers/count")]
-        public async Task<ActionResult<int>> GetFollowersCount(string userId)
+        public async Task<ActionResult<long>> GetFollowersCount(string userId)
             => await _usersRepository.GetFollowersCount(userId);
 
         [HttpGet("{userId}/following")]
@@ -36,7 +36,7 @@ namespace UserGraph.Api.Controllers
             => await _usersRepository.GetFollowing(userId);
 
         [HttpGet("{userId}/following/count")]
-        public async Task<ActionResult<int>> GetFollowingCount(string userId)
+        public async Task<ActionResult<long>> GetFollowingCount(string userId)
             => await _usersRepository.GetFollowingCount(userId);
 
         [HttpPost]

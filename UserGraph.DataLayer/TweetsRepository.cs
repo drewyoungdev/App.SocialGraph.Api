@@ -87,12 +87,13 @@ namespace UserGraph.DataLayer
                 .ToArrayAsync();
         }
 
-        public async Task<int> GetLikesCount(string tweetId)
+        public async Task<long> GetLikesCount(string tweetId)
         {
             return await _g
                 .V<Tweet>(tweetId)
                 .In<Likes>()
-                .CountAsync();
+                .Count()
+                .FirstAsync();
         }
 
         public async Task Like(string sourceUserId, string destinationTweetId)

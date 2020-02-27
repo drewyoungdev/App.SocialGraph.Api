@@ -12,7 +12,7 @@ namespace UserGraph.DataLayer.Interfaces
         Task Tweet(string userId, Tweet tweet);
 
         Task<User[]> GetLikes(string tweetId);
-        Task<int> GetLikesCount(string tweetId);
+        Task<long> GetLikesCount(string tweetId);
         Task Like(string sourceUserId, string destinationTweetId);
         Task Unlike(string sourceUserId, string destinationTweetId);
     }
