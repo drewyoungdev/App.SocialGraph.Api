@@ -33,19 +33,16 @@ namespace UserGraph.DataLayer
         /// <returns>List of recommended users</returns>
         public async Task<User[]> GetUserRecommendationsBasedOnFollows(string userId)
         {
-            var recommendations = await _g
+            return await _g
                 .V<User>(userId)
                 .As((_, self) => _
                     .Out<Follows>()
                     .Aggregate((__, directFollows) => __
                         .Out<Follows>()
                             .OfType<User>()
-                            .Where(x => x != self && !directFollows.Contains(x))))
-                .OfType<User>()
-                .Dedup()
+                            .Where(x => x != self && !directFollows.Contains(x)))
+                            .Dedup())
                 .ToArrayAsync();
-
-            return recommendations;
         }
 
         /// <summary>
@@ -56,28 +53,23 @@ namespace UserGraph.DataLayer
         /// <returns>List of recommended users</returns>
         public async Task<User[]> GetUserRecommendationsBasedOnLikes(string userId)
         {
-            var directFollows = await _g
+            return await _g
                 .V<User>(userId)
                 .Out<Follows>()
-                .OfType<User>()
-                .Values(x => x.Id)
+                .Fold()
+                .As((___, directFollows) => ___
+                    .V<User>(userId)
+                    .Out<Likes>()
+                    .OfType<Tweet>()
+                    .In<Likes>()
+                    .OfType<User>()
+                    .Where(x => (string)x.Id != userId && !directFollows.Contains(x))
+                    .Dedup())
                 .ToArrayAsync();
-
-            var recommendations = await _g
-                .V<User>(userId)
-                .Out<Likes>()
-                .OfType<Tweet>()
-                .In<Likes>()
-                .OfType<User>()
-                .Where(x => (string)x.Id != userId && !directFollows.Contains(x.Id))
-                .Dedup()
-                .ToArrayAsync();
-
-            return recommendations;
         }
 
         /// <summary>
-        /// Find tweets by users that thte current user is following
+        /// Find tweets by users that the current user is following
         /// Note: this is also the same as generating a basic Tweets timeline for a user
         /// </summary>
         /// <param name="userId">Current user's userId</param>
@@ -109,6 +101,7 @@ namespace UserGraph.DataLayer
         /// Finds tweets liked by users that the current user is following
         /// Excludes tweets already liked by the current user
         /// Tweets are limited to within the past 24 hours
+        /// TODO: Find compatible users where they have "x" liked tweets in common and traverse those vertices edges
         /// </summary>
         /// <param name="userId">Current user's userId</param>
         /// <returns>List of recommended tweets</returns>
@@ -117,23 +110,21 @@ namespace UserGraph.DataLayer
             // TODO: "recent tweets" should be within the same time frame to avoid duplicate tweets
             var dateTimeLimit = DateTime.Now.AddDays(-1);
 
-            var likedTweets = await _g
+            var recommendations = await _g
                 .V<User>(userId)
                 .Out<Likes>()
                 .OfType<Tweet>()
-                .Values(x => x.Id)
-                .ToArrayAsync();
-
-            (Tweet, User)[] recommendations = await _g
-                .V<User>(userId)
-                .Out<Follows>()
-                .OfType<User>()
-                .As((_, followingUser) => _
-                    .Out<Likes>()
-                    .OfType<Tweet>()
-                    .Where(x => !likedTweets.Contains(x.Id))
-                    .As((__, tweet) => __
-                        .Select(tweet, followingUser)))
+                .Fold()
+                .As((_, likedTweets) => _
+                    .V<User>(userId)
+                    .Out<Follows>()
+                    .OfType<User>()
+                    .As((__, followingUser) => __
+                        .Out<Likes>()
+                        .OfType<Tweet>()
+                        .Where(x => !likedTweets.Contains(x))
+                        .As((___, tweet) => ___
+                            .Select(tweet, followingUser))))
                 .ToArrayAsync();
 
             return recommendations
