@@ -1,10 +1,12 @@
 using System;
 using ExRam.Gremlinq.Core;
+using ExRam.Gremlinq.Providers.WebSocket;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using UserGraph.DataLayer;
 using UserGraph.DataLayer.Interfaces;
 using UserGraph.Models;
@@ -33,21 +35,31 @@ namespace UserGraph.Api
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
+            var logger = LoggerFactory
+                .Create(builder => builder
+                    .AddFilter(__ => true)
+                    .AddConsole())
+                .CreateLogger("Queries");
+
             services.AddSingleton<IGremlinQuerySource>(serviceProvider =>
             {
                 return GremlinQuerySource.g
                     //.AddStrategies(new PartitionKeyStrategy())
                     .ConfigureEnvironment(env => env
+                        .UseLogger(logger)
                        .UseModel(GraphModel.FromBaseTypes<Vertex, Edge>(lookup => lookup.IncludeAssembliesOfBaseTypes()))
                        .ConfigureModel(model => model
                            //.ConfigureElements(elem => elem.UseCamelCaseLabels())
                            .ConfigureProperties(prop => prop.UseCamelCaseNames())
                         )
-                        .UseCosmosDb(
-                            new Uri(Configuration["AzureSettings:GremlinEndpoint"]),
-                            Configuration["AzureSettings:GremlinDatabaseName"],
-                            Configuration["AzureSettings:GremlinCollectionName"],
-                            Configuration["AzureSettings:GremlinAuthKey"])
+                        .UseCosmosDb(builder => builder
+                            .At(new Uri(Configuration["AzureSettings:GremlinEndpoint"]),
+                                Configuration["AzureSettings:GremlinDatabaseName"],
+                                Configuration["AzureSettings:GremlinCollectionName"])
+                            .AuthenticateBy(Configuration["AzureSettings:GremlinAuthKey"])
+                            .ConfigureWebSocket(builder => builder
+                                .ConfigureQueryLoggingOptions(o => o
+                                    .SetQueryLoggingVerbosity(QueryLoggingVerbosity.QueryAndParameters))))
                     );
             });
 
